@@ -1,10 +1,29 @@
 ARG ZEPHYR_SDK_VERSION=0.16.3
+ARG ATUIN_VERSION=17.2.0
+ARG ATUIN_ARCH=x86_64-unknown-linux-gnu
+ARG LSD_VERSION=1.1.2
+ARG LSD_ARCH=x86_64-unknown-linux-gnu
+ARG STARSHIP_VERSION=1.18.2
+ARG STARSHIP_ARCH=x86_64-unknown-linux-gnu
 
 FROM alpine:latest AS sdk_fetcher
 
 ARG ZEPHYR_SDK_VERSION
-ADD https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz /zephyr-sdk.tar.xz
-RUN tar xf /zephyr-sdk.tar.xz
+ARG TARGETARCH
+
+# Map Docker TARGETARCH to Zephyr SDK archive names, download, and extract
+RUN set -e; \
+    case "${TARGETARCH}" in \
+    amd64)  SDK_ARCH="x86_64" ;; \
+    arm64)  SDK_ARCH="aarch64" ;; \
+    *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    # Use aria2c for faster and more reliable downloads (supports parallel connections, retries, and resume)
+    apk add --no-cache aria2 ca-certificates; \
+    aria2c -c --max-tries=5 -x 8 -s 8 --summary-interval=10 --console-log-level=warn \
+    -o /zephyr-sdk.tar.xz \
+    "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-${SDK_ARCH}.tar.xz"; \
+    tar xf /zephyr-sdk.tar.xz
 
 FROM ubuntu:22.04
 
@@ -22,12 +41,19 @@ SHELL ["/bin/bash", "-c"]
 # `--build-arg USER_ID="$(id -u)" --build-arg USER_GID="$(id -g)"`
 ARG USER_ID=1000
 ARG USER_GID=1000
+ARG ATUIN_VERSION
+ARG ATUIN_ARCH
+ARG LSD_VERSION
+ARG LSD_ARCH
+ARG STARSHIP_VERSION
+ARG STARSHIP_ARCH
 
 # install packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
     && apt-get install -y --no-install-recommends \
+    bat \
     bash-completion \
     build-essential \
     chrpath \
@@ -40,18 +66,50 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     gawk \
     git \
     git-lfs \
+    gosu \
     gperf \
     liblz4-tool \
+    libssl3 \
+    libsqlite3-0 \
     locales \
     locales-all \
     mtools \
+    nano \
     ninja-build \
     python3 \
     python3-pip \
     unzip \
     wget \
     xz-utils \
+    zsh \
     zstd
+
+RUN set -euxo pipefail \
+    && TARBALL="atuin-v${ATUIN_VERSION}-${ATUIN_ARCH}.tar.gz" \
+    && TMPDIR="$(mktemp -d)" \
+    && curl -fsSLo "${TMPDIR}/${TARBALL}" \
+         "https://github.com/atuinsh/atuin/releases/download/v${ATUIN_VERSION}/${TARBALL}" \
+    && tar -xzf "${TMPDIR}/${TARBALL}" -C "${TMPDIR}" \
+    && install -Dm755 "${TMPDIR}/atuin-v${ATUIN_VERSION}-${ATUIN_ARCH}/atuin" /usr/local/bin/atuin \
+    && rm -rf "${TMPDIR}"
+
+RUN set -euxo pipefail \
+    && TARBALL="lsd-v${LSD_VERSION}-${LSD_ARCH}.tar.gz" \
+    && TMPDIR="$(mktemp -d)" \
+    && curl -fsSLo "${TMPDIR}/${TARBALL}" \
+         "https://github.com/lsd-rs/lsd/releases/download/v${LSD_VERSION}/${TARBALL}" \
+    && tar -xzf "${TMPDIR}/${TARBALL}" -C "${TMPDIR}" \
+    && install -Dm755 "${TMPDIR}/lsd-v${LSD_VERSION}-${LSD_ARCH}/lsd" /usr/local/bin/lsd \
+    && rm -rf "${TMPDIR}"
+
+RUN set -euxo pipefail \
+    && TARBALL="starship-${STARSHIP_ARCH}.tar.gz" \
+    && TMPDIR="$(mktemp -d)" \
+    && curl -fsSLo "${TMPDIR}/${TARBALL}" \
+         "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/${TARBALL}" \
+    && tar -xzf "${TMPDIR}/${TARBALL}" -C "${TMPDIR}" \
+    && install -Dm755 "${TMPDIR}/starship" /usr/local/bin/starship \
+    && rm -rf "${TMPDIR}"
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -72,16 +130,17 @@ COPY --from=sdk_fetcher /zephyr-sdk-${ZEPHYR_SDK_VERSION} /opt/zephyr-sdk-${ZEPH
 WORKDIR /opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}
 RUN ./setup.sh -h
 
-# Create non-root user
-ENV USER_NAME=builder
-RUN groupadd --gid "${USER_GID}" "${USER_NAME}" \
-    && useradd --uid ${USER_ID} --gid ${USER_GID} --create-home --shell /bin/bash ${USER_NAME} \
-    && mkdir -p /home/$USER_NAME/workspace \
-    && chown $USER_NAME:$USER_NAME /home/$USER_NAME/workspace
+# Default runtime identity (can be overridden by -e or build args)
+ENV USER_NAME=builder USER_ID=1000 USER_GID=1000
 
-# Switch the user from root to $USER_NAME (builder)
-USER $USER_NAME
-WORKDIR /home/$USER_NAME/workspace
+# Use a neutral working directory; entrypoint will ensure permissions
+WORKDIR /workspace
 
-# Create dummy ~/.gitconfig
-RUN git config --global user.name "Isolated Builder"  &&  git config --global user.email "builder@example.com"
+# copy a tiny entrypoint
+COPY ./doc/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY ./doc/minimal-dev-shell.sh /usr/local/bin/minimal-dev-shell.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/minimal-dev-shell.sh \
+    && HOME=/etc/skel USER=builder MINIMAL_DEV_SHELL_RUN_INSTALLS=0 MINIMAL_DEV_SHELL_SKIP_CHSH=1 /usr/local/bin/minimal-dev-shell.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["bash"]
