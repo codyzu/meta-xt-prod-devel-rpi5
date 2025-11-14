@@ -1,0 +1,10 @@
+#!/bin/sh
+case "$1" in
+  start)
+    mkdir -p /var/www
+    [ -x /usr/sbin/httpd ] && /usr/sbin/httpd -f -p 80 -h /var/www
+    ;;
+  stop)    killall httpd 2>/dev/null || true ;;
+  restart) $0 stop; $0 start ;;
+  *)       $0 start ;;
+esac

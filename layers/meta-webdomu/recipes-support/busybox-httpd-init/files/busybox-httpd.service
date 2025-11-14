@@ -1,0 +1,12 @@
+[Unit]
+Description=BusyBox HTTP Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/httpd -f -p 80 -h /var/www
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

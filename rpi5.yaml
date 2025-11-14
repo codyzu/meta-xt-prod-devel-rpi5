@@ -246,6 +246,29 @@ components:
       target_images:
         - "tmp/deploy/images/%{DOMU_MACHINE}/Image-initramfs-%{DOMU_MACHINE}.bin"
 
+  domu_web:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_YOCTO_SOURCES
+    builder:
+      type: yocto
+      work_dir: "build_domu_web"
+      conf:
+        - *LINUX_DOMAIN_CONF
+        - [MACHINE, "%{DOMU_MACHINE}"]
+        - [XT_DOM_NAME, "domu-web"]
+        - [INITRAMFS_IMAGE, "webdomu-initramfs"]
+        - [INITRAMFS_IMAGE_NAME, "${INITRAMFS_IMAGE}${IMAGE_MACHINE_SUFFIX}.rootfs"]
+        - [INITRAMFS_IMAGE_BUNDLE, "1"]
+      build_target: "webdomu-initramfs"
+      layers:
+        - *COMMON_YOCTO_LAYERS
+        - "../meta-xt-common/meta-xt-domu"
+        - "../../layers/xt-prod-devel-rpi5-domu"
+        - "../../layers/meta-webdomu"
+      target_images:
+        - "tmp/deploy/images/%{DOMU_MACHINE}/Image-initramfs-%{DOMU_MACHINE}.bin"
+
 images:
   full:
     type: gpt
@@ -305,6 +328,7 @@ images:
           "dom0/z_blinky.bin": "%{ZEPHYR_DOMU2_DIR}/%{ZEPHYR_DOMU2_BUILD_DIR}/zephyr/zephyr.bin"
           "dom0/helloworld_xen-arm64": "domu_unikraft/helloworld_xen-arm64"
           "dom0/linux-pv-image": "%{YOCTOS_WORK_DIR}/%{DOMU_BUILD_DIR}/tmp/deploy/images/%{DOMU_MACHINE}/Image-initramfs-%{DOMU_MACHINE}.bin"
+          "dom0/linux-pv-web-image": "%{YOCTOS_WORK_DIR}/build_domu_web/tmp/deploy/images/%{DOMU_MACHINE}/Image-initramfs-%{DOMU_MACHINE}.bin"
 
   rootfs:
     type: gpt

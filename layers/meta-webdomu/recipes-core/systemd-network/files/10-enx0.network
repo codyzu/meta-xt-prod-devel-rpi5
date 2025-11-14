@@ -1,0 +1,5 @@
+[Match]
+Name=enX0
+
+[Network]
+DHCP=yes
