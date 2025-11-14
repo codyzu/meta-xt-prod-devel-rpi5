@@ -46,6 +46,19 @@ if [ ! -f "${HOME}/.gitconfig" ]; then
   gosu "${USER_NAME}" git config --global user.email "${GIT_EMAIL}"
 fi
 
+# Run the developer convenience setup script inside the user's home (idempotent)
+SETUP_SCRIPT=/usr/local/bin/minimal-dev-shell.sh
+if [ -x "${SETUP_SCRIPT}" ]; then
+  if ! gosu "${USER_NAME}" env \
+    MINIMAL_DEV_SHELL_RUN_INSTALLS=0 \
+    MINIMAL_DEV_SHELL_SKIP_CHSH=1 \
+    MINIMAL_DEV_SHELL_USE_MARKER=1 \
+    MINIMAL_DEV_SHELL_MARKER="${HOME}/.minimal-dev-shell-done" \
+    "${SETUP_SCRIPT}"; then
+    echo "Warning: developer shell setup failed; continuing without niceties." >&2
+  fi
+fi
+
 cd "${HOME}/workspace"
 
 # Drop privileges and execute the command
