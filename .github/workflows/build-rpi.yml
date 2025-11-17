@@ -26,6 +26,7 @@ jobs:
           git checkout $GITHUB_SHA
 
       - name: Ensure build scripts are executable
+        working-directory: /home/cody/build/rpi/meta-xt-prod-devel-rpi5
         run: |
           chmod +x build.sh
           chmod +x scripts/build-rpi.sh
@@ -33,6 +34,7 @@ jobs:
       - name: Build Raspberry Pi artifacts
         env:
           IMAGE_NAME: xtbuilder:latest
+        working-directory: /home/cody/build/rpi/meta-xt-prod-devel-rpi5
         run: ./build.sh
 
       # Uncomment the following to upload build outputs as artifacts (they are BIG)
