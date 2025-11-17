@@ -13,10 +13,17 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          clean: false
+      # This will nuke the build directory, prefer a simple checkout as below
+      # - name: Checkout repository
+      #   uses: actions/checkout@v5
+      #   with:
+      #     clean: false
+
+      - name: Sync repo to current commit
+        run: |
+          cd /home/cody/build/rpi/meta-xt-prod-devel-rpi5
+          git fetch origin
+          git checkout $GITHUB_SHA
 
       - name: Ensure build scripts are executable
         run: |
