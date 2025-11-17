@@ -9,3 +9,4 @@ zephyr_sync/
 domu_unikraft/
 full.img*
 rootfs.img*
+.ci-cache/

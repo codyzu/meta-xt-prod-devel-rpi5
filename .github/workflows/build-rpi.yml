@@ -1,0 +1,50 @@
+name: Build RPi Images
+
+on:
+  push:
+    branches:
+      - main
+      - github-runner
+      - domd-web-server
+  # Since we are using a self-hosted runner on a public repo, we don't want PRs from forks to trigger builds
+  # pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      # This will nuke the build directory, prefer a simple checkout as below
+      # - name: Checkout repository
+      #   uses: actions/checkout@v5
+      #   with:
+      #     clean: false
+
+      - name: Sync repo to current commit
+        run: |
+          cd /home/cody/build/rpi/meta-xt-prod-devel-rpi5
+          git fetch origin
+          git checkout $GITHUB_SHA
+
+      - name: Ensure build scripts are executable
+        working-directory: /home/cody/build/rpi/meta-xt-prod-devel-rpi5
+        run: |
+          chmod +x build.sh
+          chmod +x scripts/build-rpi.sh
+
+      - name: Build Raspberry Pi artifacts
+        env:
+          IMAGE_NAME: xtbuilder:latest
+        working-directory: /home/cody/build/rpi/meta-xt-prod-devel-rpi5
+        run: ./build.sh
+
+      # Uncomment the following to upload build outputs as artifacts (they are BIG)
+      # - name: Upload build outputs
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: rpi-images
+      #     path: |
+      #       full.img*
+      #       rootfs.img*
+      #     if-no-files-found: ignore

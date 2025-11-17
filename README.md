@@ -191,6 +191,31 @@ moulin rpi5.yaml --DOMD_ROOT nvme
 ninja
 ```
 
+### Automated container builds and CI runners
+
+This repo now ships a tiny wrapper that mirrors what our self-hosted GitHub
+runner executes. The wrapper assumes the builder image (for example
+`xtbuilder:latest`) is already available locally and that the repo will be
+mounted inside the container at `/home/builder/workspace`.
+
+* `./build.sh` &mdash; runs Docker, bind-mounts the current checkout into
+  `/home/builder/workspace`, and executes `./scripts/build-rpi.sh` inside the
+  container. Override the image via `IMAGE_NAME=... ./build.sh`, pass extra
+  `docker run` arguments with `DOCKER_RUN_EXTRA_ARGS`, or change the in-container
+  script through `CONTAINER_BUILD_SCRIPT`.
+* `./scripts/build-rpi.sh` &mdash; hosts the actual build logic. It regenerates
+  `build.ninja` with Moulin only when the configuration (`rpi5.yaml`) or the
+  provided Moulin arguments change, then runs `ninja full.img rootfs.img` so the
+  two images listed above are rebuilt together. Pass Moulin options directly,
+  e.g. `./scripts/build-rpi.sh --DOMD_ROOT nvme --ENABLE_WIFI yes`. Use
+  `NINJA_TARGETS="full.img rootfs.img.bmap" ./scripts/build-rpi.sh` to request
+  different ninja goals.
+
+Our `.github/workflows/build-rpi.yml` workflow targets self-hosted runners and
+delegates to the same wrapper, so local runs and CI builds stay consistent. The
+workflow also uploads `full.img*` and `rootfs.img*` artifacts if they are
+present.
+
 ## Create SD-card image
 
 ```

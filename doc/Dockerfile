@@ -1,4 +1,10 @@
 ARG ZEPHYR_SDK_VERSION=0.16.3
+ARG ATUIN_VERSION=17.2.0
+ARG ATUIN_ARCH=x86_64-unknown-linux-gnu
+ARG LSD_VERSION=1.1.2
+ARG LSD_ARCH=x86_64-unknown-linux-gnu
+ARG STARSHIP_VERSION=1.18.2
+ARG STARSHIP_ARCH=x86_64-unknown-linux-gnu
 
 FROM alpine:latest AS sdk_fetcher
 
@@ -35,12 +41,19 @@ SHELL ["/bin/bash", "-c"]
 # `--build-arg USER_ID="$(id -u)" --build-arg USER_GID="$(id -g)"`
 ARG USER_ID=1000
 ARG USER_GID=1000
+ARG ATUIN_VERSION
+ARG ATUIN_ARCH
+ARG LSD_VERSION
+ARG LSD_ARCH
+ARG STARSHIP_VERSION
+ARG STARSHIP_ARCH
 
 # install packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
     && apt-get install -y --no-install-recommends \
+    bat \
     bash-completion \
     build-essential \
     chrpath \
@@ -56,16 +69,47 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     gosu \
     gperf \
     liblz4-tool \
+    libssl3 \
+    libsqlite3-0 \
     locales \
     locales-all \
     mtools \
+    nano \
     ninja-build \
     python3 \
     python3-pip \
     unzip \
     wget \
     xz-utils \
+    zsh \
     zstd
+
+RUN set -euxo pipefail \
+    && TARBALL="atuin-v${ATUIN_VERSION}-${ATUIN_ARCH}.tar.gz" \
+    && TMPDIR="$(mktemp -d)" \
+    && curl -fsSLo "${TMPDIR}/${TARBALL}" \
+         "https://github.com/atuinsh/atuin/releases/download/v${ATUIN_VERSION}/${TARBALL}" \
+    && tar -xzf "${TMPDIR}/${TARBALL}" -C "${TMPDIR}" \
+    && install -Dm755 "${TMPDIR}/atuin-v${ATUIN_VERSION}-${ATUIN_ARCH}/atuin" /usr/local/bin/atuin \
+    && rm -rf "${TMPDIR}"
+
+RUN set -euxo pipefail \
+    && TARBALL="lsd-v${LSD_VERSION}-${LSD_ARCH}.tar.gz" \
+    && TMPDIR="$(mktemp -d)" \
+    && curl -fsSLo "${TMPDIR}/${TARBALL}" \
+         "https://github.com/lsd-rs/lsd/releases/download/v${LSD_VERSION}/${TARBALL}" \
+    && tar -xzf "${TMPDIR}/${TARBALL}" -C "${TMPDIR}" \
+    && install -Dm755 "${TMPDIR}/lsd-v${LSD_VERSION}-${LSD_ARCH}/lsd" /usr/local/bin/lsd \
+    && rm -rf "${TMPDIR}"
+
+RUN set -euxo pipefail \
+    && TARBALL="starship-${STARSHIP_ARCH}.tar.gz" \
+    && TMPDIR="$(mktemp -d)" \
+    && curl -fsSLo "${TMPDIR}/${TARBALL}" \
+         "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/${TARBALL}" \
+    && tar -xzf "${TMPDIR}/${TARBALL}" -C "${TMPDIR}" \
+    && install -Dm755 "${TMPDIR}/starship" /usr/local/bin/starship \
+    && rm -rf "${TMPDIR}"
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -94,7 +138,9 @@ WORKDIR /workspace
 
 # copy a tiny entrypoint
 COPY ./doc/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY ./doc/minimal-dev-shell.sh /usr/local/bin/minimal-dev-shell.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/minimal-dev-shell.sh \
+    && HOME=/etc/skel USER=builder MINIMAL_DEV_SHELL_RUN_INSTALLS=0 MINIMAL_DEV_SHELL_SKIP_CHSH=1 /usr/local/bin/minimal-dev-shell.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bash"]
