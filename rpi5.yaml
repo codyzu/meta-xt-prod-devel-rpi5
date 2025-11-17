@@ -81,8 +81,8 @@ components:
     build-dir: "%{ZEPHYR_DOM0_DIR}"
     sources:
       - type: west
-        url: "https://github.com/xen-troops/zephyr-dom0-xt.git"
-        rev: "rpi5_dom0_dev"
+        url: "https://github.com/codyzu/zephyr-dom0-xt.git"
+        rev: "rpi5_dom0_web_dev"
     builder:
       type: zephyr
       board: "%{ZEPHYR_DOM0_MACHINE}"
