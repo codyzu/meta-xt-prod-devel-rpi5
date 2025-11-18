@@ -158,8 +158,6 @@ components:
         - [RPI_SOC_FAMILY, "%{SOC_FAMILY}"]
         - [XT_DOM_NAME, "domd"]
         - [XT_DEVICE_TREES, "%{XT_XEN_DTBO_NAME}"]
-        - [KERNEL_IMAGETYPE, "Image.gz"]
-        - [KERNEL_IMAGETYPES:append, " Image"]
         - [DOM0_OS, "%{DOM0_OS}"]
         - [PREFERRED_VERSION_xen,"4.19.0+git"]
         - [PREFERRED_VERSION_xen-tools, "4.19.0+git"]
