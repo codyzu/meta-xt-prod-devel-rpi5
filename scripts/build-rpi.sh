@@ -54,6 +54,19 @@ fi
 
 ninja_cmd=(ninja "${ninja_targets[@]}")
 echo "🎯 [build] ${ninja_cmd[*]}"
+
+artifacts_to_clean=()
+for target in "${ninja_targets[@]}"; do
+  if [ -e "${target}" ]; then
+    artifacts_to_clean+=("${target}")
+  fi
+done
+
+if [ "${#artifacts_to_clean[@]}" -gt 0 ]; then
+  echo "🧹 [build] Removing stale target(s): ${artifacts_to_clean[*]}"
+  rm -f -- "${artifacts_to_clean[@]}"
+fi
+
 "${ninja_cmd[@]}"
 
 echo "🎉 [build] Done."
