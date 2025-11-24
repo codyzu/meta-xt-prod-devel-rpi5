@@ -6,15 +6,52 @@ on:
       - main
       - github-runner
       - main-builder
-  # Since we are using a self-hosted runner on a public repo, we don't want PRs from forks to trigger builds
+  # Since we are using a self-hosted runner on a public repo, we do not want PRs from forks to trigger builds
   # pull_request:
   workflow_dispatch:
+    inputs:
+      keep_vm_alive:
+        description: "Keep the GCP builder VM running after the build"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  GCP_PROJECT: xen-rpi-builder
+  GCP_ZONE: europe-west1-b
+  GCP_INSTANCE: xen-yocto-builder
 
 jobs:
-  build:
-    runs-on: self-hosted
+  start-builder:
+    name: Start GCP builder VM
+    runs-on: ubuntu-latest
+
     steps:
-      # This will nuke the build directory, prefer a simple checkout as below
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          # Store the service account JSON key in this secret
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT }}
+
+      - name: Start builder VM
+        run: |
+          gcloud compute instances start \
+            "${GCP_INSTANCE}" \
+            --zone="${GCP_ZONE}" \
+            --project="${GCP_PROJECT}"
+
+  build:
+    name: Build RPi Images
+    needs: start-builder
+    runs-on: [self-hosted, gcp-builder]
+
+    steps:
+      # This would nuke the build directory. We prefer to keep the existing checkout on the VM.
       # - name: Checkout repository
       #   uses: actions/checkout@v5
       #   with:
@@ -38,7 +75,7 @@ jobs:
         working-directory: /mnt/build/builder/meta-xt-prod-devel-rpi5
         run: ./build.sh
 
-      # Uncomment the following to upload build outputs as artifacts (they are BIG)
+      # Uncomment the following to upload build outputs as artifacts (they are large)
       # - name: Upload build outputs
       #   if: always()
       #   uses: actions/upload-artifact@v4
@@ -48,3 +85,40 @@ jobs:
       #       full.img*
       #       rootfs.img*
       #     if-no-files-found: ignore
+
+  stop-builder:
+    name: Stop GCP builder VM
+    needs: build
+    runs-on: ubuntu-latest
+    # Stop the VM by default
+    # Skip stop if:
+    #   1) Manual run with keep_vm_alive true
+    #   2) Push where the head commit message contains [keep-vm]
+    if: >
+      always() &&
+      !(
+        github.event_name == 'workflow_dispatch' &&
+        github.event.inputs.keep_vm_alive == 'true'
+      ) &&
+      !(
+        github.event_name == 'push' &&
+        contains(github.event.head_commit.message, '[keep-vm]')
+      )
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT }}
+
+      - name: Stop builder VM
+        run: |
+          gcloud compute instances stop \
+            "${GCP_INSTANCE}" \
+            --zone="${GCP_ZONE}" \
+            --project="${GCP_PROJECT}"
