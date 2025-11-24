@@ -17,7 +17,7 @@ provider "google" {
 resource "google_compute_disk" "build_disk" {
   name  = "xen-build-cache"
   type  = "pd-ssd"
-  size  = 140      # GB - adjust to taste
+  size  = 200      # GB - adjust to taste
   zone  = var.zone
 }
 
