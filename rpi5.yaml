@@ -147,8 +147,8 @@ components:
         url: "https://git.yoctoproject.org/meta-raspberrypi"
         rev: "48452445d779b0f69bf1ead12b3850d50eb8920d"
       - type: git
-        url: "https://github.com/xen-troops/meta-xt-rpi5.git"
-        rev: "main"
+        url: "https://github.com/codyzu/meta-xt-rpi5.git"
+        rev: "i2c-support"
     builder:
       type: yocto
       work_dir: "%{DOMD_BUILD_DIR}"
