@@ -46,6 +46,9 @@ else
   echo "✅ [build] Reusing existing ${BUILD_FILE} (inputs unchanged)."
 fi
 
+echo "🎯 [build] ninja}"
+ninja
+
 IFS=' ' read -r -a ninja_targets <<< "${NINJA_TARGETS:-full.img rootfs.img}"
 if [ "${#ninja_targets[@]}" -eq 0 ]; then
   echo "⚠️ [build] No ninja targets configured via NINJA_TARGETS." >&2
