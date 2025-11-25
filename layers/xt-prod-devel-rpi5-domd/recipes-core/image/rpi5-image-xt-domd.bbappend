@@ -32,6 +32,8 @@ IMAGE_INSTALL:append = "	\
     openssh-sftp-server \
     python3 \
     python3-smbus2 \
+    python3-flask \
+    curl \
 "
 
 # rootfs have to be 8 GiB, expressed in KiB
