@@ -1,0 +1,12 @@
+[Match]
+Name=xenbr0
+
+[Network]
+# Keep a stable address for domD on the internal Xen bridge
+Address=192.168.0.1/24
+
+# Masquerade outgoing IPv4 traffic from guests
+IPMasquerade=ipv4
+
+# Also let xenbr0 obtain an address from an external DHCP server, if present
+DHCP=ipv4
