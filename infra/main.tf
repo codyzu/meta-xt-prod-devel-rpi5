@@ -24,7 +24,9 @@ resource "google_compute_disk" "build_disk" {
 # Spot VM used as the build machine
 resource "google_compute_instance" "builder" {
   name         = "xen-yocto-builder"
-  machine_type = "n2-standard-8"   # 8 vCPU, 32 GB RAM - tune later
+  # machine_type = "n2-standard-8"   # 8 vCPU, 32 GB RAM - tune later
+  # machine_type = "n2-custom-12-32768"   # 12 vCPU, 32 GB RAM
+  machine_type = "n2-custom-16-32768"   # 16 vCPU, 32 GB RAM
   zone         = var.zone
 
   # Ubuntu LTS boot disk

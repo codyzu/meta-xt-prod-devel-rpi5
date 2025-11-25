@@ -264,3 +264,8 @@ A simple approach:
 ```
 rsync -av /mnt/build gs://my-backup-bucket/build/
 ```
+# Useful commands:
+
+```bash
+docker run --rm --network=host -v "$(pwd)":/home/builder/workspace -e USER_ID="$(id -u)" -e USER_GID="$(id -g)" -it xtbuilder zsh
+```
