@@ -71,6 +71,11 @@ jobs:
           chmod +x build.sh
           chmod +x scripts/build-rpi.sh
 
+      - name: Reset Yocto build-domd dir
+        working-directory: /mnt/build/builder/meta-xt-prod-devel-rpi5/yocto
+        run: |
+          rm -rf build-domd
+
       - name: Build Raspberry Pi artifacts
         env:
           IMAGE_NAME: xtbuilder:latest
