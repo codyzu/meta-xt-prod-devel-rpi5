@@ -34,6 +34,7 @@ IMAGE_INSTALL:append = "	\
     python3-smbus2 \
     python3-flask \
     curl \
+    climate-api \
 "
 
 # rootfs have to be 8 GiB, expressed in KiB
