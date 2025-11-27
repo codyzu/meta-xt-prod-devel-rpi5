@@ -35,4 +35,5 @@ do_install() {
 }
 
 SYSTEMD_SERVICE:${PN} = "climate-api.service"
+SYSTEMD_AUTO_ENABLE:${PN} = "enable"
 FILES:${PN} += "${libexecdir}/climate-api"
