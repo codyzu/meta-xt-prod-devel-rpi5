@@ -15,15 +15,18 @@ def sensor_api():
     """
     Return a single snapshot from the BME280 sensor.
     """
-    t_c, p_hpa, h_pct = get_data()
-    return jsonify(
-        {
-            "temperature_c": t_c,
-            "pressure_hpa": p_hpa,
-            "humidity_pct": h_pct,
-            "timestamp": time.time(),
-        }
-    )
+    temperature, pressure, humidity = get_data()
+    payload = {
+        "temperature_c": temperature,
+        "pressure_hpa": pressure,
+        "humidity_pct": humidity,
+        "timestamp": time.time(),
+    }
+    
+    resp = make_response(jsonify(payload))
+    # Minimal CORS to allow browser fetch from DomU web
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
 
 
 @app.route("/health", methods=["GET"])
