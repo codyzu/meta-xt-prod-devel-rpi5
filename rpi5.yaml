@@ -82,7 +82,7 @@ components:
     sources:
       - type: west
         url: "https://github.com/codyzu/zephyr-dom0-xt.git"
-        rev: "rpi5_dom0_web_dev"
+        rev: "9ec5d16a9c20ce0be0e549d884a84a049f5b8cab"
     builder:
       type: zephyr
       board: "%{ZEPHYR_DOM0_MACHINE}"
