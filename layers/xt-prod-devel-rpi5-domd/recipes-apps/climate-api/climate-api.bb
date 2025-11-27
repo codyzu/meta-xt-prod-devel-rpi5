@@ -1,7 +1,7 @@
 SUMMARY = "Simple Flask API exposing BME280 sensor data"
 DESCRIPTION = "DomD climate API: Flask service reading BME280 via smbus2"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://sensor_bme280.py;beginline=1;endline=5;md5=0d41f5f2f0d0d0d0d0d0d0d0d0d0d0d"
+LIC_FILES_CHKSUM = "file://sensor_bme280.py;beginline=1;endline=5;md5=a54a32da2a9e2649b9e0bd79c03e5660"
 
 inherit systemd
 
