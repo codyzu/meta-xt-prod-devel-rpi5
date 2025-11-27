@@ -12,3 +12,5 @@ rootfs.img*
 .ci-cache/
 .terraform/
 .terraform*
+terraform.tfstate*
+*-sa.json
