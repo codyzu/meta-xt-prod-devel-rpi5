@@ -10,7 +10,7 @@ app = Flask(__name__)
 get_data = make_bme280_reader()
 
 
-@app.route("/api/sensor", methods=["GET"])
+@app.route("/api/climate", methods=["GET"])
 def sensor_api():
     """
     Return a single snapshot from the BME280 sensor.
