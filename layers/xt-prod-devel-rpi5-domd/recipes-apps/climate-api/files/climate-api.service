@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=/usr/libexec/climate-api
-ExecStart=/usr/bin/python3 /usr/libexec/climate-api/sensor_api.py
+ExecStart=/usr/bin/python3 /usr/libexec/climate-api/climate_api.py
 Restart=on-failure
 RestartSec=3
 Environment=PYTHONUNBUFFERED=1

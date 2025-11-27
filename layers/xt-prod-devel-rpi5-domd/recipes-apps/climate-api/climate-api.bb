@@ -21,10 +21,12 @@ RDEPENDS:${PN} = " \
 "
 
 do_install() {
-    # Install scripts
-    install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/sensor_bme280.py ${D}${bindir}/sensor_bme280.py
-    install -m 0755 ${WORKDIR}/climate_api.py  ${D}${bindir}/climate_api.py
+    # Install scripts where the systemd unit expects them
+    install -d ${D}${libexecdir}/climate-api
+    install -m 0755 ${WORKDIR}/sensor_bme280.py \
+        ${D}${libexecdir}/climate-api/sensor_bme280.py
+    install -m 0755 ${WORKDIR}/climate_api.py \
+        ${D}${libexecdir}/climate-api/climate_api.py
 
     # Install systemd unit
     install -d ${D}${systemd_system_unitdir}
@@ -33,3 +35,4 @@ do_install() {
 }
 
 SYSTEMD_SERVICE:${PN} = "climate-api.service"
+FILES:${PN} += "${libexecdir}/climate-api"
