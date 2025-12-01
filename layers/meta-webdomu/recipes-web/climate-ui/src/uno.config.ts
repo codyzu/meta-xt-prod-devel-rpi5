@@ -72,24 +72,25 @@ export default defineConfig({
         transform: `rotate(calc((${analogGaugeRange} * var(--gauge-needle-position, 0)) - ${needleOffset}deg))`,
       },
     ],
-    ...Array.from({length: 360}, (_, i) => i).map((angle) => {
+    ...Array.from({length: 101}, (_, i) => i).map((percent) => {
       const radius = 'calc((100% - 15cqi) / 2)';
+      const angleAdjusted = (percent * 250) / 100 + (235 - 90);
 
       return [
-        `clock-rotate-${angle}deg`,
+        `clock-rotate-${percent}%`,
         {
           'aspect-ratio': '1',
           display: 'grid',
-          left: `calc(${radius} + (${radius} * cos(${angle}deg)))`,
+          left: `calc(${radius} + (${radius} * cos(${angleAdjusted}deg)))`,
           'place-content': 'center',
           position: 'absolute',
-          top: `calc(${radius} + (${radius} * sin(${angle}deg)))`,
+          top: `calc(${radius} + (${radius} * sin(${angleAdjusted}deg)))`,
           width: '15cqi',
         },
       ] as [string, Record<string, string>];
     }),
   ],
-  safelist: Array.from({length: 360}, (_, i) => i).map(
-    (angle) => `clock-rotate-${angle}deg`,
+  safelist: Array.from({length: 101}, (_, i) => i).map(
+    (angle) => `clock-rotate-${angle}%`,
   ),
 });
