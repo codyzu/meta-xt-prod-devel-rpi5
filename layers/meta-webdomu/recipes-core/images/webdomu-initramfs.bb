@@ -11,6 +11,7 @@ IMAGE_INSTALL:append = " \
     systemd-network-webdomu \
     openssh \
     openssh-sftp-server \
+    climate-ui \
 "
 
 IMAGE_FSTYPES = "cpio.gz"
