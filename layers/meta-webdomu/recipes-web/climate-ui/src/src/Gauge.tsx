@@ -20,21 +20,21 @@ export default function Gauge({
 
   return (
     <div className="h-80 w-80 bg-gray-bak relative @container bg-gray-9">
-      <div className="absolute top-0 left-0 grid grid-cols-3 grid-rows-3 h-full w-full">
+      <div className="absolute top-0 left-0 h-full w-full">
         <div
           className={clsx(
-            'grid-col-span-3 grid-row-span-3 rounded-full',
-            'bg-[conic-gradient(from_235deg,_theme(colors.blue.700),_theme(colors.lime.300),_theme(colors.red.700)_250deg,#0000_250deg)]',
+            'w-full h-full rounded-full',
             'gauge-band',
+            'gauge-gradient',
           )}
         />
       </div>
-      <div className="absolute top-0 left-0 grid grid-cols-3 grid-rows-3 h-full w-full">
+      <div className="absolute top-0 left-0 h-full w-full justify-center items-center">
         <div
           className={clsx(
             '@container relative',
-            'self-center grid-col-span-3 grid-row-span-3 place-self-center aspect-1 rounded-full',
-            'w-[calc(100cqi_-_(2_*_10cqi))]',
+            'aspect-1 rounded-full',
+            'gauge-marks-width',
           )}
         >
           <ol>
@@ -65,7 +65,6 @@ export default function Gauge({
           style={
             {
               '--gauge-needle-position': needlePositionPercent,
-              // '--gauge-needle-position': 0.01,
             } as React.CSSProperties
           }
         />

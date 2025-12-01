@@ -1,5 +1,5 @@
-import {defineConfig} from 'unocss';
-import presetWind4 from '@unocss/preset-wind4';
+import {defineConfig, type DynamicRule} from 'unocss';
+import presetWind4, {type Theme} from '@unocss/preset-wind4';
 import {presetIcons} from '@unocss/preset-icons';
 import {presetTypography} from '@unocss/preset-typography';
 import transformerVariantGroup from '@unocss/transformer-variant-group';
@@ -58,6 +58,35 @@ export default defineConfig({
       {
         mask: `${analogGaugeMaskCircle}, ${analogGaugeMaskSegment}`,
         'mask-composite': `${analogGaugeMaskComposite}`,
+      },
+    ],
+    [
+      /^gauge-gradient$/,
+      (_, {theme}) => {
+        // Extact the colors from the theme
+        // TODO: there is porbably a better way to type these
+        // const startColor = theme.colors!['blue.700'] as string;
+        const startColor = (theme.colors!.blue as Theme['colors'])![
+          '700'
+        ] as string;
+        const viaColor = (theme.colors!.lime as Theme['colors'])![
+          '300'
+        ] as string;
+        const toColor = (theme.colors!.red as Theme['colors'])![
+          '700'
+        ] as string;
+        return {
+          // 'bg-[conic-gradient(from_235deg,_theme(colors.blue.700),_theme(colors.lime.300),_theme(colors.red.700)_250deg,#0000_250deg)]',
+          background: `conic-gradient(from ${analogGaugeStartAngle},
+          ${startColor}, ${viaColor}, ${toColor} ${analogGaugeRange},
+          #0000 ${analogGaugeRange})`,
+        };
+      },
+    ] as DynamicRule<Theme>,
+    [
+      'gauge-marks-width',
+      {
+        width: `calc(100cqi - (2 * ${gaugeBandWidth}))`,
       },
     ],
     [
