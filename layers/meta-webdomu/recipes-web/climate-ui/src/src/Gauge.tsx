@@ -14,8 +14,6 @@ export default function Gauge({
   readonly value: number;
 }) {
   const stopsCount = (maximum - minimum) / resolution + 1;
-  // Const resolutionDegrees = (250 % 360) / (stopsCount - 1);
-
   const needlePositionPercent = (value - minimum) / (maximum - minimum);
 
   return (
@@ -43,7 +41,7 @@ export default function Gauge({
               return (
                 <li
                   key={stop}
-                  className={`clock-rotate-${Math.round(stopIndex * (stopsCount - 1))}%`}
+                  className={`clock-rotate-${Math.round((stopIndex * resolution * 100) / (maximum - minimum))}%`}
                 >
                   {stop}
                 </li>

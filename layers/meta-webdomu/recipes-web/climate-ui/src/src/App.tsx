@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import clsx from 'clsx/lite';
 import Gauge from './Gauge.tsx';
 
 type ClimateData = {
@@ -23,7 +22,7 @@ function App() {
   useEffect(() => {
     let cancel = false;
     const handle = setInterval(async () => {
-      const temperature = Math.round(Math.random() * 100) / 10;
+      const temperature = Math.round(Math.random() * 600 - 200) / 10;
       if (cancel) {
         return;
       }
@@ -64,11 +63,10 @@ function App() {
       </div>
       <Gauge
         units="hPa"
-        minimum={0}
-        maximum={10}
-        resolution={1}
+        minimum={-40}
+        maximum={40}
+        resolution={8}
         value={climateData.temperature_c}
-        // Value={0}
       />
     </>
   );
