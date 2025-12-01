@@ -6,7 +6,9 @@ import transformerVariantGroup from '@unocss/transformer-variant-group';
 import transformerDirectives from '@unocss/transformer-directives';
 import {presetWebFonts} from '@unocss/preset-web-fonts';
 
-const analogGaugeStartAngle = '235deg';
+const analogGaugeStart = 235;
+const needleOffset = 360 - ((analogGaugeStart + 90) % 360);
+const analogGaugeStartAngle = `${analogGaugeStart}deg`;
 const analogGaugeRange = '250deg';
 const analogGaugeSegmentsWidth = '1deg';
 const gaugeBandWidth = '10cqi';
@@ -62,6 +64,12 @@ export default defineConfig({
       'needle-clip',
       {
         'clip-path': 'polygon(7.5% 50%,78% 0%,83% 35%,83% 65%,78% 100%)',
+      },
+    ],
+    [
+      'rotate-gauge-needle',
+      {
+        transform: `rotate(calc((${analogGaugeRange} * var(--gauge-needle-position, 0)) - ${needleOffset}deg))`,
       },
     ],
     ...Array.from({length: 360}, (_, i) => i).map((angle) => {

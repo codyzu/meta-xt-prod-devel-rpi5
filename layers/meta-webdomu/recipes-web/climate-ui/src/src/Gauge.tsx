@@ -5,17 +5,18 @@ export default function Gauge({
   minimum,
   maximum,
   resolution,
+  value,
 }: {
   readonly units: string;
   readonly minimum: number;
   readonly maximum: number;
   readonly resolution: number;
+  readonly value: number;
 }) {
   const stopsCount = (maximum - minimum) / resolution + 1;
   const resolutionDegrees = (250 % 360) / (stopsCount - 1);
 
-  console.log('stops', stop);
-  console.log('resolutionDegrees', resolutionDegrees);
+  const needlePositionPercent = (value - minimum) / (maximum - minimum);
 
   return (
     <div className="h-80 w-80 bg-gray-bak relative @container bg-gray-9">
@@ -39,7 +40,7 @@ export default function Gauge({
           <ol>
             {Array.from({length: stopsCount}).map((_, stopIndex) => {
               const stop = minimum + stopIndex * resolution;
-              console.log('stop', stop);
+              // Console.log('stop', stop);
               return (
                 <li
                   key={stop}
@@ -59,14 +60,21 @@ export default function Gauge({
             'mask-[radial-gradient(circle_at_calc(100%_-_calc(100cqi/6))_50%,_#0000_0_2.1cqi,_#FFF_2.1cqi)]',
             'needle-clip',
             'origin-[calc(100%_-_calc(100cqi/6))_50%]',
-            'rotate-30deg',
+            'transition-transform duration-5000',
+            'rotate-gauge-needle',
           )}
+          style={
+            {
+              '--gauge-needle-position': needlePositionPercent,
+              // '--gauge-needle-position': 0.01,
+            } as React.CSSProperties
+          }
         />
         <div className="grid-col-start-1 grid-row-start-3 justify-center items-center">
           <div>Low</div>
         </div>
         <div className="grid-col-start-2 grid-row-start-3 justify-start items-center">
-          <div className="text-2xl">100</div>
+          <div className="text-2xl">{value}</div>
           <div>{units}</div>
         </div>
         <div className="grid-col-start-3 grid-row-start-3 justify-center items-center">
