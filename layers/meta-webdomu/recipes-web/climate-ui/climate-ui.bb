@@ -20,3 +20,6 @@ do_install() {
 }
 
 FILES:${PN} += "/var/www"
+
+# This recipe only installs static files (HTML/JS/CSS). It does not need nodejs at runtime.
+RDEPENDS:${PN} = ""
