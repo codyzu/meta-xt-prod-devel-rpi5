@@ -5,7 +5,6 @@ LICENSE = "MIT"
 require recipes-core/images/core-image-thin-initramfs.bb
 
 IMAGE_INSTALL:append = " \
-    web-content \
     busybox-httpd-init \
     busybox-httpd \
     systemd-network-webdomu \
