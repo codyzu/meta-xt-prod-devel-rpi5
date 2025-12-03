@@ -14,3 +14,6 @@ IMAGE_INSTALL:append = " \
 "
 
 IMAGE_FSTYPES = "cpio.gz"
+
+# Raised for PoC: default was 131072 (128 MiB)
+INITRAMFS_MAXSIZE = "220000"
