@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import time
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response
 from sensor_bme280 import make_bme280_reader
 
 app = Flask(__name__)
