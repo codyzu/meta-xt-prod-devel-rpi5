@@ -14,3 +14,4 @@ rootfs.img*
 .terraform*
 terraform.tfstate*
 *-sa.json
+.DS_Store

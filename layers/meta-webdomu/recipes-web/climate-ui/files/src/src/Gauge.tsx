@@ -1,5 +1,6 @@
 import clsx from 'clsx/lite';
 
+// Inspired from https://dev.to/madsstoumann/how-to-create-gauges-in-css-3581
 export default function Gauge({
   units,
   minimum,
@@ -17,7 +18,7 @@ export default function Gauge({
   const needlePositionPercent = (value - minimum) / (maximum - minimum);
 
   return (
-    <div className="h-80 w-80 bg-gray-bak relative @container bg-gray-9">
+    <div className="h-full w-full bg-gray-bak relative @container bg-gray-9">
       <div className="absolute top-0 left-0 h-full w-full">
         <div
           className={clsx(
