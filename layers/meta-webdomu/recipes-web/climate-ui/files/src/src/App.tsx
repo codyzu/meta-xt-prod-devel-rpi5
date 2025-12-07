@@ -45,7 +45,7 @@ function App() {
         return;
       }
 
-      const response = await fetch('http://192.168.0.102:5000/api/climate');
+      const response = await fetch('http://192.168.0.103:5000/api/climate');
 
       if (cancel) {
         return;
