@@ -63,45 +63,37 @@ function App() {
   });
 
   return (
-    <>
-      <div className="mx-auto max-w-lg p-4 items-center text-3xl">
-        <div>{climateData?.temperature_c ?? ''} °C</div>
-        <div>{climateData?.pressure_hpa ?? ''} hPa</div>
-        <div>{climateData?.humidity_pct ?? ''} %</div>
-        <div>{new Date(climateData?.timestamp ?? 0).toLocaleString()}</div>
-      </div>
-      <div className="p-4">
-        <div className="grid grid-cols-3 gap-4 justify-center bg-gray-700 rounded-full p-4">
-          <div className="w-full aspect-square p-4 bg-gray-800 rounded-full inset-shadow-sm inset-shadow-gray-500">
-            <Gauge
-              units="°C"
-              minimum={-40}
-              maximum={40}
-              resolution={8}
-              value={climateData.temperature_c}
-            />
-          </div>
-          <div className="w-full aspect-square p-4 bg-gray-800 rounded-full inset-shadow-sm inset-shadow-gray-500">
-            <Gauge
-              units="hPa"
-              minimum={500}
-              maximum={1500}
-              resolution={200}
-              value={climateData.pressure_hpa}
-            />
-          </div>
-          <div className="w-full aspect-square p-4 bg-gray-800 rounded-full inset-shadow-sm inset-shadow-gray-500">
-            <Gauge
-              units="%"
-              minimum={0}
-              maximum={100}
-              resolution={20}
-              value={climateData.humidity_pct}
-            />
-          </div>
+    <div className="p-4 min-h-100dvh justify-center">
+      <div className="grid grid-cols-3 gap-4 justify-center bg-gray-700 rounded-full p-4">
+        <div className="w-full aspect-square p-4 bg-gray-800 rounded-full inset-shadow-sm inset-shadow-gray-500">
+          <Gauge
+            units="°C"
+            minimum={-40}
+            maximum={40}
+            resolution={8}
+            value={Math.round(climateData.temperature_c * 100) / 100}
+          />
+        </div>
+        <div className="w-full aspect-square p-4 bg-gray-800 rounded-full inset-shadow-sm inset-shadow-gray-500">
+          <Gauge
+            units="hPa"
+            minimum={500}
+            maximum={1500}
+            resolution={200}
+            value={Math.round(climateData.pressure_hpa)}
+          />
+        </div>
+        <div className="w-full aspect-square p-4 bg-gray-800 rounded-full inset-shadow-sm inset-shadow-gray-500">
+          <Gauge
+            units="%"
+            minimum={0}
+            maximum={100}
+            resolution={20}
+            value={Math.round(climateData.humidity_pct * 10) / 10}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
